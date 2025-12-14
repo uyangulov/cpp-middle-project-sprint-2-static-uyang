@@ -86,6 +86,7 @@ public:
 
     static consteval std::expected<positionPairs, parse_error> get_placeholder_positions() {
         // TODO: parse honestly
+        // This is for test fmt = "{%u}";
         constexpr positionPairs p = {std::make_pair((size_t(0)), (size_t(3)))};
         return p;
     }
