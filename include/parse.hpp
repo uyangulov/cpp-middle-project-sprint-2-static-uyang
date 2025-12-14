@@ -88,9 +88,9 @@ Cформируйте из этих позиций фиксированную с
 значение.
 */
 
-template <std::unsigned_integral U, std::string_view F, fixed_string S>
+template <std::unsigned_integral U, fixed_string F, fixed_string S>
 consteval std::expected<U, parse_error> parse_value() {
-    if constexpr (F != "%u")
+    if constexpr (F.data != "%u")
         return std::unexpected<parse_error>{"Wrong format specifier"};
     // TODO: parse honestly
     return 42;
@@ -98,14 +98,18 @@ consteval std::expected<U, parse_error> parse_value() {
 
 template <int I, format_string fmt, fixed_string source, typename T>
 consteval std::expected<T, parse_error> parse_input() {
-    const auto &[first, second] = get_current_source_for_parsing<I, fmt, source>();
-    constexpr auto str = fixed_string(source.data + first, source.data + second);
-
+    constexpr auto src = get_current_source_for_parsing<I, fmt, source>();
+    constexpr auto first = src.first;
+    constexpr auto second = src.second;
+    constexpr std::size_t len = static_cast<std::size_t>(second - first);
+    constexpr fixed_string<len> str{source.data + first, source.data + second};
     constexpr auto &positions = fmt.placeholder_positions;
     constexpr auto pos_i = positions[I];
-    constexpr auto fmt_sv = to_sv(fmt.fmt);
-    constexpr auto sep = fmt_sv.substr(pos_i.first, pos_i.second);
-    constexpr auto res = parse_value<T, sep, str>();
+    constexpr auto first_i = pos_i.first;
+    constexpr auto second_i = pos_i.second;
+    constexpr std::size_t len_i = static_cast<std::size_t>(second_i - first_i);
+    constexpr fixed_string<len_i> str_i{fmt.fmt.data + first_i, fmt.fmt.data + second_i};
+    constexpr auto res = parse_value<T, str_i, str>();
     if constexpr (!res.has_value())
         return std::unexpected<parse_error>{"parse_value failed"};
     return res;
