@@ -17,8 +17,8 @@ template <details::format_string fmt, details::fixed_string source, typename T1,
 consteval details::scan_result<T1, T2> scan()
 {
     return details::scan_result<T1, T2>(
-        std::make_tuple(stdx::details::parse_input<0, fmt, source, T1>(),
-                        stdx::details::parse_input<1, fmt, source, T2>()));
+        std::make_tuple(*stdx::details::parse_input<0, fmt, source, T1>(),
+                        *stdx::details::parse_input<1, fmt, source, T2>()));
 }
 
 template <details::format_string fmt, details::fixed_string source, typename T>

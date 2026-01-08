@@ -1,14 +1,10 @@
 #pragma once
 
 #include "parse_integral.hpp"
-#include <charconv>
-#include <concepts>
+
 #include <cstddef>
 #include <expected>
-#include <optional>
-#include <ratio>
 #include <string_view>
-#include <system_error>
 #include <utility>
 
 #include "format_string.hpp"
@@ -89,6 +85,7 @@ consteval std::expected<T, parse_error> parse_input()
     constexpr std::size_t len = static_cast<std::size_t>(second - first);
     constexpr fixed_string<len> str{source.data + first, source.data + second};
     constexpr auto &positions = fmt.placeholder_positions;
+
     constexpr auto pos_i = positions[I];
     constexpr auto first_i = pos_i.first;
     constexpr auto second_i = pos_i.second;

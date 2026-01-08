@@ -2,6 +2,7 @@
 #include <concepts>
 #include <cstddef>
 #include <expected>
+#include <functional>
 #include <optional>
 #include <ratio>
 #include <string_view>
@@ -49,22 +50,30 @@ consteval auto parse_digits()
 template <std::unsigned_integral U, fixed_string F, fixed_string S>
 consteval std::expected<U, parse_error> parse_value()
 {
-    constexpr bool is_percent_u = []
-    {
-        if constexpr (F.size() != 2)
-            return false;
-        if constexpr (F.data[0] != '%')
-            return false;
-        if constexpr (F.data[1] != 'u')
-            return false;
-        return true;
-    }();
-
-    if constexpr (!is_percent_u)
-    {
-        return std::unexpected<parse_error>{"Wrong format specifier"};
-    }
+    static_assert(F.data[0] == '%', "Expected '%' at position 0 of specifier");
+    static_assert(F.data[1] == 'u', "Expected 'u' at position 1 of specifier");
     return parse_digits<S>();
+}
+
+template <std::signed_integral I, fixed_string F, fixed_string S>
+consteval std::expected<I, parse_error> parse_value()
+{
+    // static_assert(F.size() == 3, "Wrong format specifier size (expected 2)");
+    static_assert(F.data[0] == '%', "Expected '%' at position 0 of specifier");
+    static_assert(F.data[1] == 'd', "Expected 'd' at position 1 of specifier");
+    // static_assert(F.data[2] == '\0', "Expected 'd' at position 1 of
+    // specifier");
+
+    if constexpr (S.data[0] == '-')
+    {
+        constexpr fixed_string<S.size() - 1> str{S.data + 1, S.data + S.size()};
+
+        return -static_cast<I>(parse_digits<str>());
+    }
+    else
+    {
+        return static_cast<I>(parse_digits<S>());
+    }
 }
 
 }  // namespace stdx::details

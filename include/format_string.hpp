@@ -1,9 +1,10 @@
 #pragma once
 
+#include <algorithm>
 #include <array>
 #include <cstddef>
-#include <exception>
 #include <expected>
+#include <iterator>
 #include <utility>
 
 #include "types.hpp"
@@ -17,15 +18,42 @@ class format_string
 public:
     static constexpr auto fmt = Str;
 
-    static consteval std::expected<size_t, parse_error>
-    get_number_placeholders()
+    static consteval std::expected<size_t, parse_error> find_brace_num()
+    {
+        constexpr auto open_braces_count =
+            std::count(std::begin(fmt.data), std::end(fmt.data), '{');
+        constexpr auto close_braces_count =
+            std::count(std::begin(fmt.data), std::end(fmt.data), '}');
+        if constexpr (close_braces_count != open_braces_count)
+            return std::unexpected<parse_error>{
+                "Open brace count is not equal to closing brace count"};
+        else
+            return close_braces_count;
+    }
+
+    static consteval std::size_t compute_num_placeholders()
+    {
+        constexpr auto res = find_brace_num();
+        if constexpr (!res)
+            static_assert(false);
+        return res.value();
+    }
+
+    static constexpr auto number_placeholders = compute_num_placeholders();
+
+    using positionPairs =
+        std::array<std::pair<size_t, size_t>, number_placeholders>;
+
+    static consteval std::expected<positionPairs, parse_error>
+    get_placeholder_positions()
     {
         constexpr size_t N = fmt.size();
-        if (!N)
-            return 0;
+        // if (!N)
+        //     return 0;
         size_t placeholder_count = 0;
         size_t pos = 0;
         const size_t size = N - 1;  // -1 для игнорирования нуль-терминатора
+        positionPairs pairs;
 
         while (pos < size)
         {
@@ -34,6 +62,10 @@ public:
             {
                 ++pos;
                 continue;
+            }
+            else
+            {
+                pairs[placeholder_count].first = pos;
             }
 
             // Проверяем незакрытый плейсхолдер
@@ -84,31 +116,13 @@ public:
                 return std::unexpected(parse_error{
                     "\'}\' hasn't been found in appropriate place"});
             }
+            else
+            {
+                pairs[placeholder_count - 1].second = pos;
+            }
             ++pos;
         }
-        return placeholder_count;
-    }
-
-    static consteval std::size_t compute_num_placeholders()
-    {
-        constexpr auto res = get_number_placeholders();
-        if constexpr (!res)
-            static_assert(false);
-        return res.value();
-    }
-
-    static constexpr auto number_placeholders = compute_num_placeholders();
-
-    using positionPairs =
-        std::array<std::pair<size_t, size_t>, number_placeholders>;
-
-    static consteval std::expected<positionPairs, parse_error>
-    get_placeholder_positions()
-    {
-        // TODO: parse honestly
-        // This is for test fmt = "{%u}";
-        constexpr positionPairs p = {std::make_pair((size_t(0)), (size_t(3)))};
-        return p;
+        return pairs;
     }
 
     static consteval positionPairs compute_placeholder_positions()
@@ -123,10 +137,10 @@ public:
         compute_placeholder_positions();
 };
 
-template <format_string f>
-auto operator""_fs()
+template <fixed_string f>
+consteval auto operator""_fs()
 {
-    return f;
+    return format_string<f>{};
 }
 
 }  // namespace stdx::details

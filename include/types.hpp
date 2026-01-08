@@ -1,10 +1,8 @@
 #pragma once
 #include <cstddef>
 #include <cstring>
-#include <functional>
 #include <stdint.h>
 #include <tuple>
-#include <utility>
 
 namespace stdx::details
 {
@@ -44,9 +42,6 @@ struct fixed_string
 
     char data[N];
 };
-
-// fixed_string(const char *begin, const char *end) ->
-// fixed_string<static_cast<std::size_t>(end - begin)>;
 
 struct parse_error : fixed_string<100>
 {
