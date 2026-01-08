@@ -34,8 +34,7 @@ template <details::format_string fmt, details::fixed_string source,
 consteval details::scan_result<Ts...> scan_impl(std::index_sequence<Is...>)
 {
     return details::scan_result<Ts...>(
-        std::make_tuple(
-            *stdx::details::parse_input<Is, fmt, source, Ts>()...), );
+        std::make_tuple(*stdx::details::parse_input<Is, fmt, source, Ts>()...));
 }
 
 template <details::format_string fmt, details::fixed_string source,
