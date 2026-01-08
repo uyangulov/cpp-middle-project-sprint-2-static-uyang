@@ -46,4 +46,17 @@ void check_signed_and_unsigned()
     static_assert(num2 == 64);
 }
 
+void check_triple()
+{
+    constexpr auto format = "{%d}____{%u}_{%d}"_fs;
+    constexpr stdx::details::fixed_string in = "-44____64_-56";
+    constexpr auto res = stdx::scan<format, in, int8_t, uint8_t, int8_t>();
+    constexpr auto num1 = std::get<0>(res.results);
+    constexpr auto num2 = std::get<1>(res.results);
+    constexpr auto num3 = std::get<2>(res.results);
+    static_assert(num1 == -44);
+    static_assert(num2 == 64);
+    static_assert(num3 == -56);
+}
+
 int main() {}
