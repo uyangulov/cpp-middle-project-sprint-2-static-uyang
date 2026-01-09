@@ -1,15 +1,12 @@
 #include "format_string.hpp"
-#include "scan.hpp"
-#include "types.hpp"
 #include <array>
 #include <cstddef>
-#include <cstdint>
 #include <sys/types.h>
 #include <utility>
 
 using stdx::details::operator""_fs;
 
-void check_single()
+static void check_single()
 {
     constexpr auto format_u = "{%u}"_fs;
     constexpr auto format_d = "{%d}"_fs;
@@ -31,7 +28,7 @@ void check_single()
     static_assert(format_s.get_placeholder_positions() == correct_pairs);
 }
 
-void check_double()
+static void check_double()
 {
     constexpr auto format = "{%u}_some_text_{%d}"_fs;
 
@@ -43,7 +40,7 @@ void check_double()
     static_assert(format.get_placeholder_positions() == correct_pairs);
 }
 
-void check_multiple()
+static void check_multiple()
 {
     constexpr auto format = "{%u}_some_text_{%d}__more_text_{%f}_{%s}"_fs;
 
