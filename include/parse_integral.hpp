@@ -78,12 +78,9 @@ consteval std::expected<U, parse_error> parse_value()
 template <std::signed_integral I, fixed_string F, fixed_string S>
 consteval std::expected<I, parse_error> parse_value()
 {
-    // static_assert(F.size() == 3, "Wrong format specifier size (expected 2)");
     static_assert(F.data[0] == '%', "Expected '%' at position 0 of specifier");
     static_assert(F.data[1] == 'd', "Expected 'd' at position 1 of specifier");
     static_assert(S.size() > 0, "Empty string");
-    // static_assert(F.data[2] == '\0', "Expected 'd' at position 1 of
-    // specifier");
 
     if constexpr (S.data[0] == '-')
     {

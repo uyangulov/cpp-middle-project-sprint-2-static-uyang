@@ -48,8 +48,8 @@ public:
     get_placeholder_positions()
     {
         constexpr size_t N = fmt.size();
-        // if (!N)
-        //     return 0;
+        if (!N)
+            return {};
         size_t placeholder_count = 0;
         size_t pos = 0;
         const size_t size = N - 1;  // -1 для игнорирования нуль-терминатора
