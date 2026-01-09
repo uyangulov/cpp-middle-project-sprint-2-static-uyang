@@ -1,6 +1,6 @@
 Language: Cpp
-BreakBeforeBraces: Allman
-ColumnLimit: 80
+BasedOnStyle: LLVM
+ColumnLimit: 120
 CompactNamespaces: true
 AccessModifierOffset: -4
 ContinuationIndentWidth: 4
