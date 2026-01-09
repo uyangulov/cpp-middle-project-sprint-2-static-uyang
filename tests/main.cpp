@@ -2,6 +2,7 @@
 #include "scan.hpp"
 #include "types.hpp"
 #include <cstdint>
+#include <numeric>
 #include <string_view>
 #include <sys/types.h>
 #include <type_traits>
