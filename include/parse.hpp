@@ -1,7 +1,6 @@
 #pragma once
 
-#include "parse_integral.hpp"
-#include "parse_string.hpp"
+#include "parse_overload_set.hpp"
 
 #include <cstddef>
 #include <expected>
@@ -64,7 +63,9 @@ consteval auto get_current_source_for_parsing() {
 }
 
 template <int I, format_string fmt, fixed_string source, typename T>
-consteval std::expected<T, parse_error> parse_input() {
+consteval T parse_input() {
+    static_assert(I >= 0 && I < fmt.number_placeholders, "Invalid placeholder index");
+
     constexpr auto src = get_current_source_for_parsing<I, fmt, source>();
     constexpr auto first = src.first;
     constexpr auto second = src.second;
@@ -76,13 +77,8 @@ consteval std::expected<T, parse_error> parse_input() {
     constexpr auto first_i = pos_i.first;
     constexpr auto second_i = pos_i.second;
     constexpr std::size_t len_i = static_cast<std::size_t>(second_i - first_i);
-
     constexpr fixed_string<len_i - 1> str_i{fmt.fmt.data + first_i + 1, fmt.fmt.data + second_i};
-
     constexpr auto res = parse_value<T, str_i, str>();
-    if constexpr (!res.has_value())
-        return std::unexpected<parse_error>{"parse_value failed"};
-
     return res;
 }
 

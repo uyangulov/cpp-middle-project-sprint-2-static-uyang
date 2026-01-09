@@ -16,20 +16,11 @@ class format_string {
 public:
     static constexpr auto fmt = Str;
 
-    static consteval std::expected<size_t, parse_error> find_brace_num() {
+    static consteval size_t compute_num_placeholders() {
         constexpr auto open_braces_count = std::count(std::begin(fmt.data), std::end(fmt.data), '{');
         constexpr auto close_braces_count = std::count(std::begin(fmt.data), std::end(fmt.data), '}');
-        if constexpr (close_braces_count != open_braces_count)
-            return std::unexpected<parse_error>{"Open brace count is not equal to closing brace count"};
-        else
-            return close_braces_count;
-    }
-
-    static consteval std::size_t compute_num_placeholders() {
-        constexpr auto res = find_brace_num();
-        if constexpr (!res)
-            static_assert(false);
-        return res.value();
+        static_assert(close_braces_count == open_braces_count, "Open brace count is not equal to closing brace count");
+        return close_braces_count;
     }
 
     static constexpr auto number_placeholders = compute_num_placeholders();
@@ -101,8 +92,7 @@ public:
 
     static consteval positionPairs compute_placeholder_positions() {
         constexpr auto res = get_placeholder_positions();
-        if constexpr (!res)
-            static_assert(false);
+        static_assert(res.has_value(), "Failed to get number of placeholders");
         return res.value();
     }
 
