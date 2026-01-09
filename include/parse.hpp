@@ -1,6 +1,7 @@
 #pragma once
 
 #include "parse_integral.hpp"
+#include "parse_string.hpp"
 
 #include <cstddef>
 #include <expected>
